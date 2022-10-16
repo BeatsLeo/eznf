@@ -6,6 +6,8 @@
 
 开发时采用`dev`分支，开发完毕后将`dev`分支向`main`分支提交pull request。
 
+`push`前记得先`git pull origin dev`或者`git pull origin main`
+
 
 
 ## 项目需求
