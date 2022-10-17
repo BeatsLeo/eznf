@@ -12,3 +12,6 @@ class Tensor:
 
     def __str__(self):
         return 'tensor({})'.format(self.item)
+
+    def __repr__(self):
+        return 'tensor({})'.format(self.item)
