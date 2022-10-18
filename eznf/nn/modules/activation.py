@@ -1,4 +1,4 @@
-from eznf.nn.modules import Module
+from .module import Module
 
 class ReLU(Module):
     def __init__(self):
