@@ -1,7 +1,7 @@
 import eznf
 
 def relu() -> eznf.Tensor:
-    pass   #dhsakdhasdasdad
+    pass
 
 def sigmoid() -> eznf.Tensor:
     pass
