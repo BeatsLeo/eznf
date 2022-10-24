@@ -11,12 +11,18 @@ class MNIST:
     url = 'http://yann.lecun.com/exdb/mnist/'
     resources = ['train-images-idx3-ubyte', 'train-labels-idx1-ubyte', 't10k-images-idx3-ubyte', 't10k-labels-idx1-ubyte']
     
-    def __init__(self, root:str, shuffle:bool, download:bool):
+    def __init__(self, root:str, download:bool, shuffle:bool = False):
         self.root = root 
         self.download = download
         self.shuffle = shuffle
     
     def get(self):
+        """Returns:
+            X_train -> Tensor: train data
+            Y_train -> Tensor: train label
+            X_test -> Tensor: test data
+            Y_test -> Tensor: test label
+        """
         if self.download == True:
             data = []
             
@@ -25,7 +31,7 @@ class MNIST:
                 time.sleep(0.5)
                 response = requests.get(file_gz)
                 
-                filename = root + '\\' + val + '.gz'
+                filename = self.root + '\\' + val + '.gz'
                 
                 with open(filename, 'wb') as file:
                     file.write(response.content)
@@ -49,20 +55,21 @@ class MNIST:
                 os.remove(f_name)
             
             
-            X_train, Y_train, X_test, Y_test = data[0], data[1], data[2], data[3]
+            self.X_train, self.Y_train, self.X_test, self.Y_test = data[0], data[1], data[2], data[3]
+            
             
             if self.shuffle == True:
                 X_shuffle_train = []
                 Y_shuffle_train = []
                 idxs = np.random.permutation(X_train.shape[0])
-                for idx,val in eunmerate(idxs):
+                for idx,val in enumerate(idxs):
                     X_shuffle_train[idx] = X_train[val]
                     Y_shuffle_train[idx] = Y_train[val]
                     
                 return X_shuffle_train, Y_shuffle_train, X_test, Y_test
                 
             else:
-                return X_train, Y_train, X_test, Y_test
+                return self.X_train, self.Y_train, self.X_test, self.Y_test
            
             
         
@@ -74,7 +81,7 @@ class MNIST:
                 time.sleep(0.5)
                 response = requests.get(file_gz)
                 
-                filename = root + '\\' + val + '.gz'
+                filename = self.root + '\\' + val + '.gz'
                 with open(filename, 'wb') as file:
                     file.write(response.content)
                 
@@ -104,7 +111,7 @@ class MNIST:
                 Y_shuffle_train = []
                 idxs = np.random.permutation(X_train.shape[0])
                 
-                for idx,val in eunmerate(idxs):
+                for idx,val in enumerate(idxs):
                     X_shuffle_train[idx] = X_train[val]
                     Y_shuffle_train[idx] = Y_train[val]
                     
@@ -116,8 +123,11 @@ class MNIST:
             
     def show_one_sample(self):
         idx = random.randint(0,60000)
-        plt.imshow(X_train[idx].reshape(-1, 28), cmap = 'gray')
-        print('label:{}'.format(Y_train[idx]))
+        plt.imshow(self.X_train[idx].reshape(-1, 28), cmap = 'gray')
+        print('label:{}'.format(self.Y_train[idx]))
+
+    def unpack(self, args):
+        pass
 
 #root = r'C:\Users\Lenovo\Desktop\python\dataset'
 #test = MNIST(root = root, shuffle = False, download = False)
