@@ -1,3 +1,4 @@
+import numpy as np
 class Tensor:
     def __init__(self, *args, device=None, requires_grad=False):
         if(len(args) == 0):
