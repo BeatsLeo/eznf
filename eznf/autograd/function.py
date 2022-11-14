@@ -1,19 +1,40 @@
-from eznf import Tensor
+from eznf.tensor.tensor import Tensor
+import numpy as np
 
 class Functional():
     def __init__(self, requires_grad=False):
         self.requires_grad = requires_grad
-        self.next_functions = []
-        self.saved = None
     
-    def forward(self, *args):
-        raise NotImplementedError("You must implement the forward function for custom autograd.Function.")
-
     def backward(self, *grad_outputs):
         raise NotImplementedError("You must implement either the backward method for your custom autograd.Function to use it with backward mode AD.")
 
-    def save_for_backward(self, result: Tensor):
-        self.saved = result.copy()
 
-    def saved_tensors(self):
-        return self.saved
+class AddBackward(Functional):
+    def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
+        super().__init__()
+        self.a = a
+        self.b = b
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(Tensor(np.ones_like(self.a.item), is_leaf=False) * output)
+        if(self.b.requires_grad):
+            self.b.backward(Tensor(np.ones_like(self.b.item), is_leaf=False) * output)
+
+class SubBackward(Functional):
+    pass
+
+class MulBackward(Functional):
+    def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
+        super().__init__()
+        self.a = a
+        self.b = b
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(Tensor([1]) * self.b * output)
+        if(self.b.requires_grad):
+            self.b.backward(Tensor([1]) * self.a * output)
+
+class DivBackward(Functional):
+    pass
