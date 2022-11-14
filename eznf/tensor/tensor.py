@@ -121,7 +121,9 @@ class Tensor:
         else:
             grad_fn = None
         return Tensor(self.item * other.item, requires_grad=requires_grad, grad_fn=grad_fn, is_leaf=False)
-        
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
 
     def backward(self, output=None):
         if(not output):

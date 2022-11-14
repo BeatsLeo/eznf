@@ -38,3 +38,18 @@ class MulBackward(Functional):
 
 class DivBackward(Functional):
     pass
+
+class DotBackward(Functional):
+    def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
+        super().__init__()
+        self.a = a
+        self.b = b
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(output @ self.b.T)
+
+        if(self.b.requires_grad):
+            if(not output):
+                output = Tensor(np.ones_like(self.b))
+            self.b.backward(self.a.T @ output)
