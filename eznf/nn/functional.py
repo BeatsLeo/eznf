@@ -42,15 +42,9 @@ def softmax(input)-> torch.Tensor:
 
 
 # def conv1d(input, sad, bias=None, stride=1, padding=0) -> torch.Tensor: 
-    
 # def conv2d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
 # def conv3d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
-# def conv2d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
-# def conv3d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
-# def conv2d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
-# def conv3d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
-# def conv2d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
-# def conv3d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
+
 
 
 def mes_loss(input,y)-> torch.Tensor:  
