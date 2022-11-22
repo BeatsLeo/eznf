@@ -48,11 +48,7 @@
 
 #### Softmax
 
-#### Cov1d
-
 #### Cov2d
-
-#### Cov3d
 
 #### MaxPool
 
@@ -89,11 +85,7 @@
 
 #### softmax
 
-#### cov1d
-
 #### cov2d
-
-#### cov3d
 
 #### maxPool
 
