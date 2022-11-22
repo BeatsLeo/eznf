@@ -1,9 +1,6 @@
-# import eznf
-from cmath import tan
+import eznf
 import torch
 import numpy as np
-
-
 
 
 #支持gpu暂且没写，而且只用了pytorch里面的tensor
@@ -22,11 +19,9 @@ def linear(input, weight, bias=None)-> torch.Tensor:
 
 def relu(input) -> torch.Tensor:
     istensor(input)
-    shape = input.shape
-    input=torch.reshape(input,(-1,1))
-    for i in range(len(input)):
-        input[i]=max(0,input[i])
-    output=torch.reshape(input,shape)
+    input=np.array(input)
+    output = np.maximum(0,input)
+    output=torch.tensor(output)
     return output
         
 def sigmoid(input) -> torch.Tensor:
@@ -37,13 +32,38 @@ def tanh(input) -> torch.Tensor:
     istensor(input)
     return (torch.exp(input)-torch.exp(-input))/(torch.exp(input)+torch.exp(-input))
 
-def softmax(input, dim=None)-> torch.Tensor:        #stacklevel=3, dtype=None 没管,dim写不来
+def softmax(input)-> torch.Tensor:      
     istensor(input)                        
     exp_input=torch.tensor(input)
     exp_sum = torch.sum(exp_input)
     return exp_input/exp_sum
 
 
-# def conv1d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1) -> torch.Tensor: 
+
+
+# def conv1d(input, sad, bias=None, stride=1, padding=0) -> torch.Tensor: 
     
-    
+# def conv2d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
+# def conv3d(input, weight, bias=None, stride=1, padding=0) -> torch.Tensor: 
+
+
+def mes_loss(input,y)-> torch.Tensor:  
+    istensor(input)
+    istensor(y)
+    output=0
+    for i in range(len(input)):
+        output += (input[i]-y[i])**2/2
+    return output
+
+def cross_entropy(input,y)-> torch.Tensor:  
+    istensor(input)
+    istensor(y)
+    input=softmax(input)
+    input=torch.log(input)
+    output=0
+    for i in range(len(input)):
+        output += -y[i]*input[i]
+    return output
+
+
+
