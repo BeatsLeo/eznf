@@ -6,7 +6,7 @@ class Functional():
         self.requires_grad = requires_grad
     
     def backward(self, *grad_outputs):
-        raise NotImplementedError("You must implement either the backward method for your custom autograd.Function to use it with backward mode AD.")
+        raise NotImplementedError("You must implement either the backward method for your custom autograd.Function to use it with backward mode.")
 
 
 class AddBackward(Functional):
@@ -50,6 +50,4 @@ class DotBackward(Functional):
             self.a.backward(output @ self.b.T)
 
         if(self.b.requires_grad):
-            if(not output):
-                output = Tensor(np.ones_like(self.b))
             self.b.backward(self.a.T @ output)
