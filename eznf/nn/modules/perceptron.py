@@ -25,7 +25,7 @@ class Perceptron(Module):
         n, m = X.item.shape[0],X.item.shape[1]
         # print(n,m)
         # 初始化模型参数
-        self.weight = utils.zeros(m)
+        self.weight = utils.ones(m)
         self.bias = utils.zeros(1)
         # 将输入的ndarray转换为tensor
         # X = utils.from_numpy(X).float()
@@ -39,7 +39,7 @@ class Perceptron(Module):
                 Xi = X[idx, :]
                 yi = y[idx]
                 # 计算线性函数输出值
-                out = (self.weight @ Xi) + self.bias
+                out = (self.weight.T @ Xi) + self.bias
                 # out = self.weight.mul(Xi)
                 # 分类错误则更新
                 if out * yi <= 0:
