@@ -47,7 +47,13 @@ class DotBackward(Functional):
     
     def backward(self, output = Tensor([1])):
         if(self.a.requires_grad):
-            self.a.backward(output @ self.b.T)
+            if(output.size() == 1):
+                self.a.backward(output * self.b.T)
+            else:
+                self.a.backward(output @ self.b.T)
 
         if(self.b.requires_grad):
-            self.b.backward(self.a.T @ output)
+            if(output.size() == 1):
+                self.b.backward(self.a.T * output)
+            else:
+                self.b.backward(self.a.T @ output)
