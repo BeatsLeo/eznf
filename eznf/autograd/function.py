@@ -8,8 +8,18 @@ class Functional():
     def backward(self, *grad_outputs):
         raise NotImplementedError("You must implement either the backward method for your custom autograd.Function to use it with backward mode.")
 
+class NegBackward(Functional):
+    # -a
+    def __init__(self, a: Tensor, requires_grad=False):
+        super().__init__()
+        self.a = a
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(-Tensor(np.ones_like(self.a.item), is_leaf=False) * output)
 
 class AddBackward(Functional):
+    # a + b
     def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
         super().__init__()
         self.a = a
@@ -22,9 +32,7 @@ class AddBackward(Functional):
             self.b.backward(Tensor(np.ones_like(self.b.item), is_leaf=False) * output)
 
 class SubBackward(Functional):
-    pass
-
-class MulBackward(Functional):
+    # a - b
     def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
         super().__init__()
         self.a = a
@@ -32,14 +40,38 @@ class MulBackward(Functional):
     
     def backward(self, output = Tensor([1])):
         if(self.a.requires_grad):
-            self.a.backward(Tensor([1]) * self.b * output)
+            self.a.backward(Tensor(np.ones_like(self.a.item), is_leaf=False) * output)
         if(self.b.requires_grad):
-            self.b.backward(Tensor([1]) * self.a * output)
+            self.b.backward(-Tensor(np.ones_like(self.b.item), is_leaf=False) * output)
+
+class MulBackward(Functional):
+    # a * b
+    def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
+        super().__init__()
+        self.a = a
+        self.b = b
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(self.b * output)
+        if(self.b.requires_grad):
+            self.b.backward(self.a * output)
 
 class DivBackward(Functional):
-    pass
+    # a / b
+    def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
+        super().__init__()
+        self.a = a
+        self.b = b
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(1 / self.b * output)
+        if(self.b.requires_grad):
+            self.b.backward(self.a * (-1/self.b**2) * output)
 
 class DotBackward(Functional):
+    # a @ b
     def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
         super().__init__()
         self.a = a
@@ -57,3 +89,14 @@ class DotBackward(Functional):
                 self.b.backward(self.a.T * output)
             else:
                 self.b.backward(self.a.T @ output)
+
+class PowBackward(Functional):
+    # a**b
+    def __init__(self, a: Tensor, b: int, requires_grad=False):
+        super().__init__()
+        self.a = a
+        self.b = b
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(self.b * self.a**(self.b-1) * output)
