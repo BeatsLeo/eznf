@@ -21,7 +21,7 @@ class Tensor:
 
     @property
     def shape(self):
-        return Tensor(np.array(self.item.shape))
+        return self.item.shape
 
     @property
     def T(self):
