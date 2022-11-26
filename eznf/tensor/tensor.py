@@ -97,6 +97,7 @@ class Tensor:
         return 'tensor(\n{}\n)'.format(self.item)
 
     def __repr__(self):
+<<<<<<< HEAD
         return 'tensor(\n{}\n)'.format(self.item)
     
     def __len__(self):
@@ -233,3 +234,6 @@ class Tensor:
                 self.grad = output
 
 from eznf.autograd import function
+=======
+        return 'tensor({})'.format(self.item)
+>>>>>>> fae521059b7860c9cbd901d5e0107c95b96afeaa
