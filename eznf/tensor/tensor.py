@@ -131,28 +131,28 @@ class Tensor:
         return len(self.item)
 
     def __getitem__(self, *args):
-        return Tensor(self.item.__getitem__(*args), is_leaf=False)
+        return Tensor(self.item.__getitem__(*args), requires_grad=self.requires_grad, is_leaf=False)
 
     def __setitem__(self, key, value):
         self.item.__setitem__(key, value)
 
     def __lt__(self, other):
-        return Tensor(self.item.__lt__(other), is_leaf=False)
+        return Tensor(self.item.__lt__(other), requires_grad=self.requires_grad, is_leaf=False)
     
     def __le__(self, other):
-        return Tensor(self.item.__le__(other), is_leaf=False)
+        return Tensor(self.item.__le__(other), requires_grad=self.requires_grad, is_leaf=False)
 
     def __eq__(self, other):
-        return Tensor(self.item.__eq__(other), is_leaf=False)
+        return Tensor(self.item.__eq__(other), requires_grad=self.requires_grad, is_leaf=False)
 
     def __ne__(self, other):
-        return Tensor(self.item.__ne__(other), is_leaf=False)
+        return Tensor(self.item.__ne__(other), requires_grad=self.requires_grad, is_leaf=False)
 
     def __gt__(self, other):
-        return Tensor(self.item.__gt__(other), is_leaf=False)
+        return Tensor(self.item.__gt__(other), requires_grad=self.requires_grad, is_leaf=False)
         
     def __ge__(self, other):
-        return Tensor(self.item.__ge__(other), is_leaf=False)
+        return Tensor(self.item.__ge__(other), requires_grad=self.requires_grad, is_leaf=False)
 
     def __neg__(self):
         if(self.requires_grad):

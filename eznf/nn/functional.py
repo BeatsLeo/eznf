@@ -6,14 +6,17 @@ def istensor(input):
     if(isinstance(input, eznf.Tensor)!=True):
         raise ValueError('not tensor')
 
-def relu(x) :
+def relu(x):
     if(x.requires_grad):
         grad_fn = function.ReluBackward(x=x, requires_grad=x.requires_grad)
     else:
         grad_fn = None
     res = x.item * (x.item > 0)
     return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
-  
+
+def linear(x, w):
+    return w @ x
+
 def sigmoid(input) :
     istensor(input)
     return 1.0/(1.0+eznf.exp(-input))
@@ -59,6 +62,33 @@ def cov2d(x, w):
 
     z = (_w @ _z).reshape([out_channels, batch_size, steps, steps], order='C').transpose(1,0,2,3)   # 矩阵相乘后还原(卷积)
     return eznf.Tensor(z, requires_grad=requires_grad, grad_fn=grad_fn, is_leaf=False)
+
+# 最大池化, stride = p_size, padding = 0
+def max_pooling(x, p_size):
+    """
+        x: batch_size * channels * w * h
+    """    
+    batch_size, c, x_size, _ = x.shape
+
+    if(int(x_size/p_size) != x_size/p_size):
+        raise ValueError('x_size must be divided exactly by p_size')
+
+    steps = x_size // p_size
+    _z = np.zeros([p_size**2, batch_size*c*steps**2])
+
+    for i in range(p_size):
+        for j in range(p_size):
+            _z[i*p_size+j, :] = x.item[:, :, i::p_size, j::p_size].reshape([-1], order='C')    # 将输入展平(im2col)
+
+    z = _z.max(axis=0).reshape([batch_size, c, steps, steps])
+    arg_max = _z.argmax(axis=0)
+
+    if(x.requires_grad):
+        grad_fn = function.MaxPoolingBackward(x, p_size=p_size, argmax=eznf.Tensor(arg_max, is_leaf=False), requires_grad=x.requires_grad)
+    else:
+        grad_fn = None
+
+    return eznf.Tensor(z, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
 
 def mse(input,y):  
     istensor(input)

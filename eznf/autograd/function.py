@@ -169,13 +169,13 @@ class Cov2dBackward(Functional):
         batch_size, out_c, z_size, _ = output.shape
         steps = x_size - z_size + 1
 
-        if(self.x.requires_grad):
-            dx = np.zeros([batch_size, in_c, x_size, x_size])
-            for i in range(z_size):
-                for j in range(z_size):
-                    dx[:, :, i:i+w_size, j:j+w_size] += (self.w.item[:,None,:,:,:] * output.item[:, :, i, j].transpose(1,0)[:,:,None,None,None]).sum(axis=0)
+        # if(self.x.requires_grad):
+        #     dx = np.zeros([batch_size, in_c, x_size, x_size])
+        #     for i in range(z_size):
+        #         for j in range(z_size):
+        #             dx[:, :, i:i+w_size, j:j+w_size] += (self.w.item[:,None,:,:,:] * output.item[:, :, i, j].transpose(1,0)[:,:,None,None,None]).sum(axis=0)
 
-            self.x.backward(Tensor(dx, is_leaf=False))
+        #     self.x.backward(Tensor(dx, is_leaf=False))
 
         if(self.w.requires_grad):            
             _z = output.item.transpose(1,0,2,3).reshape([out_c, -1], order='C')
@@ -187,6 +187,27 @@ class Cov2dBackward(Functional):
             dw = (_z @ _x).reshape(out_c,x_c,steps,steps) / batch_size
 
             self.w.backward(Tensor(dw, is_leaf=False))
+
+class MaxPoolingBackward(Functional):
+    def __init__(self, x: Tensor, p_size:int, argmax: Tensor, requires_grad=False):
+        super().__init__()
+        self.x = x
+        self.p_size = p_size
+        self.argmax = argmax
+    
+    def backward(self, output = Tensor([[[[1]]]])):
+        batch_size, c, z_size, _ = output.shape
+        x_size = z_size * self.p_size
+        dx = np.zeros([batch_size*c*z_size*z_size, self.p_size*self.p_size])
+        dx[np.arange(self.argmax.item.size), self.argmax.item] = output.item.flatten()
+        dx = dx.reshape([batch_size,c,z_size,z_size,self.p_size,self.p_size], order='C').transpose(0,1,4,5,2,3)
+        dxx = np.zeros([batch_size, c, x_size, x_size])
+        
+        for i in range(self.p_size):
+            for j in range(self.p_size):
+                dxx[:,:,i::self.p_size,j::self.p_size] = dx[:, :, i, j,:,:]
+        
+        self.x.backward(Tensor(dxx, is_leaf=False))
 
 class CrossEntropyBackward(Functional):
     def __init__(self, x: Tensor, y: Tensor, requires_grad=False):
