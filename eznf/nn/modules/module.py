@@ -9,11 +9,8 @@ class Module:
     def forward(self, *args):
         raise NotImplementedError('forward() is not implemented')
 
-    def backward(self, *args):
-        pass
-
     def parameters(self):
         if(self.networks):
             for network in self.networks:
-                if(network.w):
+                if(network.w is None):
                     yield network.w

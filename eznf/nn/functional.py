@@ -1,44 +1,39 @@
-# import eznf
-import torch
+import eznf
+from eznf.autograd import function
 import numpy as np
 
-
-#支持gpu暂且没写，而且只用了pytorch里面的tensor
-a=torch.tensor([[[[1,1],[1,1]],[[2,2],[2,2]]],[[[1,1],[1,1]],[[2,2],[2,2]]]])
-b=np.array([[[[1,1,1],[1,1,1]],[[2,2,2],[2,2,2]]],[[[1,1,1],[1,1,1]],[[2,2,2],[2,2,2]]]])
-b=np.transpose(b,(2,3,1,0))
-print(b.shape)
-
 def istensor(input):
-    if(isinstance(input,torch.Tensor)!=True):
+    if(isinstance(input, eznf.Tensor)!=True):
         raise ValueError('not tensor')
-    
 
-def linear(input, weight, bias=None): 
-    istensor(input)
-    return input @ weight.T + bias
-
-
-def relu(input) :
-    istensor(input)
-    input=np.array(input)
-    output = np.maximum(0,input)
-    output=torch.tensor(output)
-    return output
-        
+def relu(x) :
+    if(x.requires_grad):
+        grad_fn = function.ReluBackward(x=x, requires_grad=x.requires_grad)
+    else:
+        grad_fn = None
+    res = x.item * (x.item > 0)
+    return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
+  
 def sigmoid(input) :
     istensor(input)
-    return 1.0/(1.0+torch.exp(-input))
+    return 1.0/(1.0+eznf.exp(-input))
 
 def tanh(input) :
     istensor(input)
-    return (torch.exp(input)-torch.exp(-input))/(torch.exp(input)+torch.exp(-input))
+    return (eznf.exp(input)-eznf.exp(-input))/(eznf.exp(input)+eznf.exp(-input))
 
-def softmax(input):      
-    istensor(input)                        
-    exp_input=torch.tensor(input)
-    exp_sum = torch.sum(exp_input)
-    return exp_input/exp_sum
+# softmax激活函数
+def softmax(x, axis):
+    if(x.requires_grad):
+        grad_fn = function.SoftmaxBackward(x=x, axis=axis, requires_grad=x.requires_grad)
+    else:
+        grad_fn = None
+
+    phi = x.item.max(axis=axis)
+    e = np.exp(x.item - phi)
+    res = e / e.sum(axis=axis)
+    return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
+
 
 def conv2d(x,input_channel,output_channel,kernal_size):       #默认无padding，移动1
     #x  [width,height,channel,batch]                                               
@@ -65,12 +60,13 @@ def mes_loss(input,y):
         output += (input[i]-y[i])**2/2
     return output
 
-def cross_entropy(input,y):  
-    istensor(input)
-    istensor(y)
-    input=softmax(input)
-    input=torch.log(input)
-    output=0
-    for i in range(len(input)):
-        output += -y[i]*input[i]
-    return output
+# 交叉熵损失
+def cross_entropy(x, y):
+    if(x.requires_grad):
+        grad_fn = function.CrossEntropyBackward(x=x, y=y, requires_grad=x.requires_grad)
+    else:
+        grad_fn = None
+
+    a = softmax(x.item)
+    res = -(y*np.log(a)).sum()
+    return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)

@@ -18,6 +18,26 @@ class NegBackward(Functional):
         if(self.a.requires_grad):
             self.a.backward(-Tensor(np.ones_like(self.a.item), is_leaf=False) * output)
 
+class PermuteBackward(Functional):
+    # a.T
+    def __init__(self, a: Tensor, requires_grad=False):
+        super().__init__()
+        self.a = a
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(Tensor(np.ones_like(self.a.item), is_leaf=False) * output.T)
+
+class SumBackward(Functional):
+    # sum(a)
+    def __init__(self, a: Tensor, requires_grad=False):
+        super().__init__()
+        self.a = a
+    
+    def backward(self, output = Tensor([1])):
+        if(self.a.requires_grad):
+            self.a.backward(Tensor(np.ones_like(self.a.item), is_leaf=False) * output)
+
 class AddBackward(Functional):
     # a + b
     def __init__(self, a: Tensor, b: Tensor, requires_grad=False):
@@ -108,3 +128,34 @@ class ReluBackward(Functional):
     
     def backward(self, output = Tensor([1])):
         return self.x.backward((self.x > 0) * output)
+
+class SoftmaxBackward(Functional):
+    def __init__(self, x: Tensor, axis: int, requires_grad=False):
+        super().__init__()
+        self.x = x
+        self.axis = axis
+    
+    def backward(self, output = Tensor([1])):
+        def softmax(x, axis):
+            phi = x.max(axis=axis)
+            e = np.exp(x - phi)
+            return e / e.sum(axis=axis)
+
+        s = softmax(self.x.item, self.axis)
+        res = Tensor(s*(s-1), requires_grad=False, is_leaf=False)
+        return self.x.backward(res * output)
+
+class CrossEntropyBackward(Functional):
+    def __init__(self, x: Tensor, y: Tensor, requires_grad=False):
+        super().__init__()
+        self.x = x
+        self.y = y
+    
+    def backward(self, output = Tensor([1])):
+        def softmax(x):
+            phi = x.max(axis=0)
+            e = np.exp(x - phi)
+            return e / e.sum(axis=0)
+        a = softmax(self.x.item)
+        res = Tensor(a - self.y.item, requires_grad=False, is_leaf=False)
+        return self.x.backward(res * output)

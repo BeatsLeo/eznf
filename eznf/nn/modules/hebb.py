@@ -1,6 +1,5 @@
 import eznf
 from .module import Module
-import eznf.nn.functional as F
 
 class Hebb(Module):
     def __init__(self, learning_rate):

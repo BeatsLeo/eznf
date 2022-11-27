@@ -39,3 +39,15 @@ def to_numpy(arr):
 def to_list(arr):
     #将eznf.Tensor类型变量转化为list
     return to_numpy(arr).tolist()
+
+def one_hot(arr, length):
+    if(not isinstance(arr, eznf.Tensor)):
+        raise TypeError('array must be a Tensor')
+    if(len(arr.shape) != 1):
+        raise ValueError('array should have 1 dimensions')
+
+    num = arr.size()
+    oh = np.zeros([num, length])
+    oh[np.arange(num), arr.item] = 1
+
+    return eznf.Tensor(oh, requires_grad=False, is_leaf=False)

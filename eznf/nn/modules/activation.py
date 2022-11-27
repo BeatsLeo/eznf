@@ -6,3 +6,5 @@ class ReLU(Module):
 
     def forward(self, x):
         return x * (x > 0)
+
+from ..functional import *

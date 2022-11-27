@@ -28,7 +28,11 @@ class Tensor:
 
     @property
     def T(self):
-        return Tensor(np.array(self.item.T))
+        if(self.requires_grad):
+            grad_fn = function.PermuteBackward(self, requires_grad=self.requires_grad)
+        else:
+            grad_fn = None
+        return Tensor(self.item.T, device=self.device, grad_fn=grad_fn, requires_grad=self.requires_grad, is_leaf=self.is_leaf)
 
     def size(self):
         return self.item.size
@@ -36,15 +40,32 @@ class Tensor:
     def dim(self):
         return len(self.item.shape)
 
+    def max(self, axis=None):
+        tensor = Tensor(is_leaf=False)
+        tensor.item = self.item.max(axis=axis)
+        return tensor
+
+    def min(self, axis=None):
+        tensor = Tensor(is_leaf=False)
+        tensor.item = self.item.min(axis=axis)
+        return tensor
+
+    def sum(self, axis=None):
+        if(self.requires_grad):
+            grad_fn = function.SumBackward(self, requires_grad=self.requires_grad)
+        else:
+            grad_fn = None
+        return Tensor(self.item.sum(axis=axis).round(4), requires_grad=self.requires_grad, grad_fn=grad_fn, is_leaf=False)
+
     def mean(self, axis=None):
-        return Tensor(self.item.mean(axis=axis).round(4))
+        return Tensor(self.item.mean(axis=axis).round(4), is_leaf=False)
 
     def var(self, axis=None):
         if(axis != None):
             n = self.item.shape[axis]
         else:
             n = self.item.size
-        return Tensor(np.array(self.item.var(axis=axis)*n/(n-1)).round(4))
+        return Tensor(np.array(self.item.var(axis=axis)*n/(n-1)).round(4), is_leaf=False)
 
     def std(self, axis=None):
         if(axis != None):
@@ -67,10 +88,14 @@ class Tensor:
         return tensor
 
     def view(self, *args):
-        return Tensor(self.item.reshape(*args))
+        if(self.requires_grad):
+            grad_fn = function.PermuteBackward(self, requires_grad=self.requires_grad)
+        else:
+            grad_fn = None
+        return Tensor(self.item.reshape(*args), device=self.device, grad_fn=grad_fn, requires_grad=self.requires_grad, is_leaf=self.is_leaf)
 
     def sqrt(self):
-        return Tensor(np.sqrt(self.item))
+        return Tensor(np.sqrt(self.item), is_leaf=False)
 
     def tolist(self):
         return self.item.tolist()
