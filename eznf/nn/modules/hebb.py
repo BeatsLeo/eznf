@@ -19,8 +19,13 @@ class Hebb(Module):
         for idx in range(n):
             Xi = train_X[idx, :]
             yi = train_Y[idx]
-            sum = (self.weight.T @ Xi) - yi
-            out = 1 if(sum > 0) else -1
+            sum = self.weight.T @ Xi
+            print(sum,yi)
+            if(sum * yi <= 0):
+                out = 1
+            else:
+                out = -1
+            # out = 1 if(sum * yi > 0) else -1
             delta_w = self.learning_rate * out * Xi
             self.weight += delta_w
 
