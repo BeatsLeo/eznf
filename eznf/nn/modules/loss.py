@@ -1,16 +1,12 @@
 from .module import Module
 from ..functional import *
-import numpy as np
 
 class MSE(Module):
     def __init__(self):
-        pass
+        super().__init__()
 
-    def __call__(self, *args):
-        self.forward(args)
-
-    def forward(self, *args):
-        pass
+    def forward(self, x, y):
+        return mse(x, y)
 
 class CrossEntropyLoss(Module):
     def __init__(self):

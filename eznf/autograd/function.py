@@ -147,6 +147,47 @@ class SoftmaxBackward(Functional):
         if(self.x.requires_grad):
             self.x.backward(res * output)
 
+class FlattenBackward(Functional):
+    def __init__(self, x: Tensor, requires_grad=False):
+        super().__init__()
+        self.x = x
+    
+    def backward(self, output = Tensor([1])):
+       if(self.x.requires_grad):
+            res = Tensor(self.x.item.T.reshape(self.x.shape, order='C'), is_leaf=False)
+            self.x.backward(res)
+
+class Cov2dBackward(Functional):
+    def __init__(self, x: Tensor, w: Tensor, requires_grad=False):
+        super().__init__()
+        self.x = x
+        self.w = w
+    
+    def backward(self, output = Tensor([[[[1]]]])):
+        _, in_c, w_size, _ = self.w.shape
+        batch_size, x_c, x_size, _ = self.x.shape
+        batch_size, out_c, z_size, _ = output.shape
+        steps = x_size - z_size + 1
+
+        if(self.x.requires_grad):
+            dx = np.zeros([batch_size, in_c, x_size, x_size])
+            for i in range(z_size):
+                for j in range(z_size):
+                    dx[:, :, i:i+w_size, j:j+w_size] += (self.w.item[:,None,:,:,:] * output.item[:, :, i, j].transpose(1,0)[:,:,None,None,None]).sum(axis=0)
+
+            self.x.backward(Tensor(dx, is_leaf=False))
+
+        if(self.w.requires_grad):            
+            _z = output.item.transpose(1,0,2,3).reshape([out_c, -1], order='C')
+            _x = np.zeros([batch_size*z_size**2, steps**2*x_c])
+            for i in range(steps):
+                for j in range(steps):
+                    loc = i*steps+j
+                    _x[:,loc::steps**2] =  self.x.item[:, :, i:i+z_size, j:j+z_size].transpose(1,0,2,3).reshape([x_c,-1]).T   # 方法同cov2d, 采用im2col算法
+            dw = (_z @ _x).reshape(out_c,x_c,steps,steps) / batch_size
+
+            self.w.backward(Tensor(dw, is_leaf=False))
+
 class CrossEntropyBackward(Functional):
     def __init__(self, x: Tensor, y: Tensor, requires_grad=False):
         super().__init__()
