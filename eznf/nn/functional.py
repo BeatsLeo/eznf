@@ -35,23 +35,6 @@ def softmax(x, axis):
     return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
 
 
-def conv2d(x,input_channel,output_channel,kernal_size):       #默认无padding，移动1
-    #x  [width,height,channel,batch]                                               
-    kernal = np.random.randn(output_channel,kernal_size,kernal_size) 
-    width,height,batch=x.shape[0],x.shape[1],x.shape[3]           
-    
-    out=np.zeros([width-kernal_size+1,height-kernal_size+1,output_channel,batch])
-    for k in range(batch):
-        for i in range(output_channel):
-            for j in range(input_channel):
-                for a in range(width-kernal_size+1):
-                    for b in range(height-kernal_size+1):
-                        out[a,b,i,k]+=np.sum(np.sum(x[a:a+kernal_size,b:b+kernal_size,j,k]*kernal[i]))
-                    if b==width-kernal_size and a!=height-kernal_size:
-                        b=0
-    return out,kernal
-
-
 def mes_loss(input,y):  
     istensor(input)
     istensor(y)
