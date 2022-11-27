@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-class cifar10:
+class Cifar10:
     url = 'http://www.cs.toronto.edu/~kriz'
     resource = ['cifar-10-python.tar.gz']
     resources = ['data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5', 'test_batch']
@@ -19,7 +19,7 @@ class cifar10:
         X_test = []
         Y_test = []
 
-        for _, val in enumerate(cifar10.resources):
+        for _, val in enumerate(Cifar10.resources):
             if val != 'test_batch':
                 file = path + '\\' + val
                 with open(file, 'rb') as f:
@@ -47,12 +47,12 @@ class cifar10:
         Return:
         path -> str
         '''
-        file_gz = cifar10.url + '/' + cifar10.resource[0]
+        file_gz = Cifar10.url + '/' + Cifar10.resource[0]
         time.sleep(0.5)
         response = requests.get(file_gz)
 
-        if not os.path.exists(self.root + '\\' + cifar10.resource[0]):
-            with open(self.root + '\\' + cifar10.resource[0], 'wb') as file:
+        if not os.path.exists(self.root + '\\' + Cifar10.resource[0]):
+            with open(self.root + '\\' + Cifar10.resource[0], 'wb') as file:
                 file.write(response.content)
 
 
