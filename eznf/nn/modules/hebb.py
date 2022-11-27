@@ -1,6 +1,6 @@
+import eznf
 from .module import Module
 import eznf.nn.functional as F
-import eznf.utils.utils as utils
 
 class Hebb(Module):
     def __init__(self, learning_rate):
@@ -15,7 +15,7 @@ class Hebb(Module):
 
     def fit(self, train_X,train_Y):
         n, m = train_X.item.shape[0],train_X.item.shape[1]
-        self.weight = utils.ones(m)
+        self.weight = eznf.ones(m)
         for idx in range(n):
             Xi = train_X[idx, :]
             yi = train_Y[idx]

@@ -100,3 +100,11 @@ class PowBackward(Functional):
     def backward(self, output = Tensor([1])):
         if(self.a.requires_grad):
             self.a.backward(self.b * self.a**(self.b-1) * output)
+
+class ReluBackward(Functional):
+    def __init__(self, x: Tensor, requires_grad=False):
+        super().__init__()
+        self.x = x
+    
+    def backward(self, output = Tensor([1])):
+        return self.x.backward((self.x > 0) * output)

@@ -1,9 +1,11 @@
 from .module import Module
-from eznf import Tensor
+import eznf
 
 class Linear(Module):
-    def __init__(self):
-        pass
+    def __init__(self, in_features, out_features):
+        super().__init__()
+        w = 0.1*eznf.randn(in_features, out_features)
+        self.w = eznf.Tensor(w, requires_grad=True, is_leaf=True)
 
-    def forward(self, *args):
-        pass
+    def forward(self, x):
+        return self.w @ x

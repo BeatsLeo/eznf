@@ -1,41 +1,41 @@
-import eznf
 import numpy as np
-import torch
+import eznf
 
-def from_numpy(arr: np.ndarray) -> eznf.tensor:
-    # 建议参数类型： np.ndarray，返回值类型:eznf.tensor
+def from_numpy(arr: np.ndarray):
+    # 建议参数类型： np.ndarray，返回值类型:eznf.Tensor
     if(type(arr) is np.ndarray):
         return eznf.Tensor(arr)
     else:
         print("Type error, arg 's type isn't ndarray")
 
-def ones(shape: int or list) -> eznf.tensor:
-    #创建一个全是1的 eznf.tensor类型
-    if(type(shape) is int or list):
-        onesTensor = from_numpy(np.ones(shape))
-        return onesTensor
+def ones(*args):
+    #创建一个全是1的 eznf.Tensor类型
+    if(isinstance(args[0], list)):
+        return eznf.Tensor(np.ones(*args))
     else:
-        print("Type error, arg 's type isn't int nor list")
+        return eznf.Tensor(np.ones(args))
 
-def zeros(shape: int or list) -> eznf.tensor:
-    #创建一个全是0的 eznf.tensor类型
-    if(type(shape) is int or list):
-        zerosTensor = from_numpy(np.zeros(shape))
-        return zerosTensor
+def zeros(*args):
+    #创建一个全是0的 eznf.Tensor类型
+    if(isinstance(args[0], list)):
+        return eznf.Tensor(np.zeros(*args))
     else:
-        print("Type error, arg 's type isn't int nor list")
+        return eznf.Tensor(np.zeros(args))
 
-def empty(arr: eznf.tensor) -> bool:
+def randn(*args):
+    return eznf.Tensor(np.random.randn(*args))
+
+def empty(arr):
     #若arr为空，返回True
-    return len(arr) == 0
+    return arr.size == 0
 
-def to_numpy(arr: eznf.tensor) -> np.ndarray:
-    #将eznf.tensor类型变量转化为numpy
-    if (type(arr) is eznf.tensor):
-        return torch.tensor(arr)
+def to_numpy(arr):
+    #将eznf.Tensor类型变量转化为numpy
+    if (type(arr) is eznf.Tensor):
+        return arr.item
     else:
-        print("Type error, arg 's type isn't eznf.tensor")
+        print("Type error, arg 's type isn't eznf.Tensor")
 
-def to_list(arr: eznf.tensor) -> list:
-    #将eznf.tensor类型变量转化为list
+def to_list(arr):
+    #将eznf.Tensor类型变量转化为list
     return to_numpy(arr).tolist()

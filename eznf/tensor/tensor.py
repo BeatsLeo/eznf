@@ -7,7 +7,10 @@ class Tensor:
         elif(isinstance(args[0], list) or isinstance(args[0], float)):
             self.item = np.array(args[0], float).round(4)
         elif(isinstance(args[0], np.ndarray)):
-            self.item = np.array(args[0])
+            if(args[0].dtype == bool):
+                self.item = np.array(args[0])
+            else:
+                self.item = np.array(args[0]).round(4)
         elif(isinstance(args[0], Tensor)):
             self.item = args[0].item
         else:
@@ -97,7 +100,6 @@ class Tensor:
         return 'tensor(\n{}\n)'.format(self.item)
 
     def __repr__(self):
-<<<<<<< HEAD
         return 'tensor(\n{}\n)'.format(self.item)
     
     def __len__(self):
@@ -234,6 +236,3 @@ class Tensor:
                 self.grad = output
 
 from eznf.autograd import function
-=======
-        return 'tensor({})'.format(self.item)
->>>>>>> fae521059b7860c9cbd901d5e0107c95b96afeaa
