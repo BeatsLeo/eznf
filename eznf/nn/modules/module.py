@@ -12,5 +12,5 @@ class Module:
     def parameters(self):
         if(self.networks):
             for network in self.networks:
-                if(network.w is None):
+                if(network.w):
                     yield network.w

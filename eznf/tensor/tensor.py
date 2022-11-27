@@ -5,12 +5,12 @@ class Tensor:
         if(len(args) == 0):
             self.item = np.random.randn(1)
         elif(isinstance(args[0], list) or isinstance(args[0], float)):
-            self.item = np.array(args[0], float).round(4)
+            self.item = np.array(args[0], float)
         elif(isinstance(args[0], np.ndarray)):
             if(args[0].dtype == bool):
                 self.item = np.array(args[0])
             else:
-                self.item = np.array(args[0]).round(4)
+                self.item = np.array(args[0])
         elif(isinstance(args[0], Tensor)):
             self.item = args[0].item
         else:
@@ -55,17 +55,17 @@ class Tensor:
             grad_fn = function.SumBackward(self, requires_grad=self.requires_grad)
         else:
             grad_fn = None
-        return Tensor(self.item.sum(axis=axis).round(4), requires_grad=self.requires_grad, grad_fn=grad_fn, is_leaf=False)
+        return Tensor(self.item.sum(axis=axis), requires_grad=self.requires_grad, grad_fn=grad_fn, is_leaf=False)
 
     def mean(self, axis=None):
-        return Tensor(self.item.mean(axis=axis).round(4), is_leaf=False)
+        return Tensor(self.item.mean(axis=axis), is_leaf=False)
 
     def var(self, axis=None):
         if(axis != None):
             n = self.item.shape[axis]
         else:
             n = self.item.size
-        return Tensor(np.array(self.item.var(axis=axis)*n/(n-1)).round(4), is_leaf=False)
+        return Tensor(np.array(self.item.var(axis=axis)*n/(n-1)), is_leaf=False)
 
     def std(self, axis=None):
         if(axis != None):
@@ -254,10 +254,11 @@ class Tensor:
             raise RuntimeError('grad can be implicitly created only for scalar outputs')
         if(self.grad_fn):
             self.grad_fn.backward(output)
-        else:
+        elif(self.is_leaf):
             if(self.grad):
                 self.grad += output
             else:
                 self.grad = output
+
 
 from eznf.autograd import function

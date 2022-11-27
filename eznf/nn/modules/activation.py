@@ -5,6 +5,6 @@ class ReLU(Module):
         super().__init__()
 
     def forward(self, x):
-        return x * (x > 0)
+        return relu(x)
 
 from ..functional import *

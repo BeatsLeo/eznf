@@ -43,13 +43,13 @@ def mes_loss(input,y):
         output += (input[i]-y[i])**2/2
     return output
 
-# 交叉熵损失
+# 交叉熵损失   
 def cross_entropy(x, y):
     if(x.requires_grad):
         grad_fn = function.CrossEntropyBackward(x=x, y=y, requires_grad=x.requires_grad)
     else:
         grad_fn = None
 
-    a = softmax(x.item)
-    res = -(y*np.log(a)).sum()
+    a = softmax(x, 0)
+    res = -(y.item*np.log(a.item)).sum()
     return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)

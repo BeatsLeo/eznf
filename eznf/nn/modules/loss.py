@@ -16,5 +16,5 @@ class CrossEntropyLoss(Module):
     def __init__(self):
         super().__init__()
 
-    def forward(self):
-        return cross_entropy(self.a, self.y)
+    def forward(self, x, y):
+        return cross_entropy(x, y)

@@ -127,7 +127,8 @@ class ReluBackward(Functional):
         self.x = x
     
     def backward(self, output = Tensor([1])):
-        return self.x.backward((self.x > 0) * output)
+       if(self.x.requires_grad):
+            self.x.backward((self.x > 0) * output)
 
 class SoftmaxBackward(Functional):
     def __init__(self, x: Tensor, axis: int, requires_grad=False):
@@ -143,7 +144,8 @@ class SoftmaxBackward(Functional):
 
         s = softmax(self.x.item, self.axis)
         res = Tensor(s*(s-1), requires_grad=False, is_leaf=False)
-        return self.x.backward(res * output)
+        if(self.x.requires_grad):
+            self.x.backward(res * output)
 
 class CrossEntropyBackward(Functional):
     def __init__(self, x: Tensor, y: Tensor, requires_grad=False):
@@ -158,4 +160,5 @@ class CrossEntropyBackward(Functional):
             return e / e.sum(axis=0)
         a = softmax(self.x.item)
         res = Tensor(a - self.y.item, requires_grad=False, is_leaf=False)
-        return self.x.backward(res * output)
+        if(self.x.requires_grad):
+            self.x.backward(res * output)
