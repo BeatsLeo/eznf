@@ -61,5 +61,5 @@ class Perceptron(Module):
             # print(tensor.Tensor([-1]))
             return eznf.ones(1)
         else:
-            print(tensor.Tensor([-1]))
+            # print(tensor.Tensor([-1]))
             return tensor.Tensor([-1])
