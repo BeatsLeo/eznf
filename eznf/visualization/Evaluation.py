@@ -16,10 +16,10 @@ class Evaluation(object):
         C1 = np.zeros((self.n, self.n))
         C2 = np.zeros((self.n, self.n))
 
-        for i in range(self.y_train.shape):
+        for i in range(self.y_train.shape[0]):
             C1[self.y_train[i], self.train_priedict[i]] += 1
 
-        for i in range(self.y_test.shape):
+        for i in range(self.y_test.shape[0]):
             C2[self.y_test[i], self.test_priedict[i]] += 1
 
         img, ax = plt.subplots(1, 2)
@@ -50,7 +50,7 @@ class Evaluation(object):
                 fp = 0
                 fn = 0
                 tn = 0
-                for k in range(self.y_test.shape):
+                for k in range(self.y_test.shape[0]):
                     p = (self.y_test_out[i, k] >= r)
                     t = (self.y_test[k] == i)
 
@@ -85,7 +85,7 @@ class Evaluation(object):
                 fp = 0
                 fn = 0
                 tn = 0
-                for k in range(self.y_test.shape):
+                for k in range(self.y_test.shape[0]):
                     p = (self.y_test_out[i, k] >= r)
                     t = (self.y_test[k] == i)
 
