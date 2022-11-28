@@ -31,8 +31,11 @@ class Hebb(Module):
             self.weight += delta_w
 
     def forward(self, test_X):
-        sum = (self.weight.T @ test_X)
+        sum = (self.weight.T @ test_X)+ tensor.Tensor([0])
         # out = 1 if(sum > 0) else -1
         # print(sum)
-        out = tensor.Tensor([-1])
+        if sum > 0:
+            out = eznf.ones(1)
+        else:
+            out = tensor.Tensor([-1])
         return out
