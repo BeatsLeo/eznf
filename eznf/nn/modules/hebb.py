@@ -1,4 +1,6 @@
 import eznf
+import eznf.tensor.tensor as tensor
+import eznf.nn.functional as F
 from .module import Module
 
 class Hebb(Module):
@@ -18,12 +20,23 @@ class Hebb(Module):
         for idx in range(n):
             Xi = train_X[idx, :]
             yi = train_Y[idx]
-            sum = (self.weight.T @ Xi) - yi
-            out = 1 if(sum > 0) else -1
+            # sum = (self.weight.T @ Xi) - yi
+            sum = (self.weight.T @ Xi) + tensor.Tensor([0])
+            # out = F.relu(sum)
+            # out = 1 if(sum > 0) else -1
+            # print(type(out))
+            if sum * yi > 0:
+                out = 1
+            else:
+                out = -1
+            # print(yi)
+            # out = -1
             delta_w = self.learning_rate * out * Xi
             self.weight += delta_w
 
     def forward(self, test_X):
         sum = (self.weight.T @ test_X)
-        out = 1 if(sum > 0) else -1
+        # out = 1 if(sum > 0) else -1
+        # print(sum)
+        out = tensor.Tensor([-1])
         return out
