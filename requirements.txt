@@ -1,0 +1,6 @@
+cupy==11.3.0
+cupy_cuda117==10.6.0
+matplotlib==3.5.1
+numpy==1.21.5
+requests==2.27.1
+tqdm==4.64.0

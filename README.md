@@ -1,235 +1,68 @@
-# eznf框架
+# eznf框架使用方法
 
----
+### 包依赖
 
-## 开发流程
+见 `./requirements.txt`
 
-开发时采用`dev`分支，开发完毕后将`dev`分支向`main`分支提交pull request。
 
-`push`前记得先`git pull origin dev`或者`git pull origin main`
 
+### 使用方法
 
+`import eznf`
 
 
 
-## 项目需求
+### 数据集
 
-### Tensor
+*使用MNIST的逻辑与pytorch相同 ； 特别说明，使用cifar10数据集，用户创建cifar10实例后，必须调用其download方法下载数据集gz，然后用户需要自己解压，并将解压后的文件夹里的路径传入实例的get方法，即可以返回数据*
 
-`eznf/tensor/tensor.py`
+```python
+from eznf import datasets
 
-* 支持GPU
+mnist = datasets.MNIST('./', True)	#下载
+data_m = mnist.get()
 
-* 支持list、ndarray的相互转换
-
-* 重载运算符
-
-* 实现backward
-
-
-
-### Module
-
-`eznf/nn/modules`
-
-基类：Module
-
-* 支持GPU
-* 实现构造函数
-* 实现`forward()` -> 调用functional里面的计算式
-
-#### Linear
-
-#### ReLu
-
-#### Sigmoid
-
-#### Tanh
-
-#### Softmax
-
-#### Cov2d
-
-#### MaxPool
-
-#### AvgPool
-
-#### MSELoss
-
-#### CrossEntropyLoss
-
-#### Hebb
-
-#### 感知机
-
-(时间允许：BatchNorm, Dropout)
-
-
-
-### Functional
-
-`eznf/nn/functional.py`
-
-基类：被使用于module
-
-* 支持GPU
-* 错误检测：输入类型是否为tensor，如果不满足，`raise ValueError('xxx')`
-
-#### linear
-
-#### reLu
-
-#### sigmoid
-
-#### tanh
-
-#### softmax
-
-#### cov2d
-
-#### maxPool
-
-#### avgPool
-
-#### mse_loss
-
-#### cross_entropy
-
-
-
-### Autograd
-
-`eznf/autograd`
-
-#### function
-
-* 计算图构建
-* 反向传播
-
-
-
-### Optimizer
-
-`eznf/optim`
-
-* 支持GPU
-
-#### SGD
-
-#### Adam
-
-
-
-### DataSet
-
-`eznf/dataset`
-
-#### MNIST
-
-* `__init__(self, shuffle:bool, path)`
-* `get(self, train_size) -> x_train, x_test, y_train, y_test`
-
-#### Cifar
-
-* `__init__(self, shuffle:bool, path)`
-* `get(self, train_size) -> x_train, x_test, y_train, y_test`
-
-
-
-### Visualization
-
-`eznf/visualization`
-
-#### VTrain
-
-* `__init__(self, model, x_train, x_test, y_train, y_test)`
-* `train(aplha, epoch, optim, criterian)`
-  * 画出loss曲线
-  * 画出训练集和测试集的准确率曲线
-
-#### Evaluation
-
-* `__init__(self, model, x_train, x_test, y_train, y_test, n)`
-* `CMplot()`
-  * 根据所给的类别数n绘制混淆矩阵
-* `ROCplot()`
-  * 根据所给的类别数n绘制ROC曲线
-* `PRplot`
-  * 根据所给的类别数n绘制PR曲线
-
-
-
-### Utils
-
-`eznf/utils/utils.py`
-
-#### from_numpy
-
-#### ones
-
-#### zeros
-
-#### empty
-
-#### to_numpy
-
-#### to_list
-
-框架需要的一些辅助函数
-
-
-
-
-
-## 前期分工
-
-*接口先按照pytorch的tensor做测试*
-
-
-
-### Tensor
-
-`李帅`
-
-
-
-### Utils
-
-`刘天一`
-
-
-
-### Visualization
-
-`秦臻远`
-
-
-
-### DataSet
-
-`陈腾`
-
-
-
-### Functional
-
-`李浩宇`
-
-
-
-
-
-
-
-```markdown
-### DataLoader
-
-`eznf/dataload`
-
-* 支持GPU
-
-* 封装训练集和测试集
-
-（支持batch）
+cifar10 = datasets.Cifar10('./', True)	#下载
+data_c = cifar10.get()
 ```
 
+
+
+### Tensor使用
+
+具体操作同`pytorch`，支持GPU
+
+```python
+tensor = eznf.Tensor(2, 4)
+print(tensor)
+
+>>>tensor(
+	[[ 1.30387739 -1.1998284   1.47868658  0.46624838]
+	 [-0.56039362 -1.57864911 -0.9321185  -0.69342469]]
+	)
+```
+
+
+
+### 模型构建
+
+示例：
+
+```python
+class CNN(eznf.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.networks = [
+            eznf.nn.Cov2d(1, 3, 3),
+            eznf.nn.MaxPooling(2),
+            eznf.nn.Flatten(),
+            eznf.nn.Linear(507, 256),
+            eznf.nn.ReLU(),
+            eznf.nn.Linear(256, 10)
+        ]
+    
+    def forward(self, x):
+        for i in self.networks:
+            x = i(x)
+        return x
+```

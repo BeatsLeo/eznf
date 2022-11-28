@@ -1,30 +1,34 @@
-from eznf import Tensor
 import eznf 
+import numpy as np
+from eznf import Tensor
 
 class Adam:
-    def __init__(self, model:eznf.nn.Module, alpha:float, belta1:float = 0.9, belta2:float = 0.999, epsilon:float = 1e-8):
+    def __init__(self, lr, model: eznf.nn.Module):
+        self.lr = lr
+        self.beta1 = 0.9
+        self.beta2 = 0.999
+        self.eps = 1e-7
         self.model = model
-        self.alpha = alpha
-        self.belta1 = belta1
-        self.belta2 = belta2
-        self.epsilon = epsilon
-        
-        self.t = 0
-
-        self.m = {}
-        #self.m[self.t] =
-        self.v = {}
-        #self.v{self.t} = 
-        
+        self.m = None
+        self.v = None
+        self.step = 0
+ 
     def step(self):
-        self.t += 1
+        if self.m is None:
+            self.m = {}
+            self.v = {}
 
-        #gt = w.grad.item
-        #self.m[self.t] = self.belta1 * self.m[self.t - 1] + (1 - self.belta1) * gt
-        #self.v[self.t] = self.belta2 * self.v[self.t - 1] + (1 - self.belta2) * (gt ** 2)
-        mt_ = self.m[self.t] / (1 - self.belta1)
-        vt_ = self.v[self.t] / (1 - self.belta2)
-        #w = w - self.alpha * mt_/((vt_**0.5) + self.epsilon) 
+            for w in self.model.parameters():
+                self.m[w] = np.zeros_like(w)
+                self.v[w] = np.zeros_like(w)
+ 
+        self.step += 1
+        lr_t = self.lr * np.sqrt(1.0 - self.beta2**self.step) / (1.0 - self.beta1**self.step)
+        for w in self.model.parameters():
+            self.m[w] = (self.beta1 * self.m[w] + (1 - self.beta1) * w.grad.item)
+            self.v[w] = (self.beta2 * self.v[w] + (1 - self.beta2) * w.grad.item**2)
+            w.item -= lr_t * self.m[w] / (np.sqrt(self.v[w]) + self.eps)
+
 
     def zero_grad(self):
         for w in self.m.parameters():
