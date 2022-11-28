@@ -53,11 +53,13 @@ class Perceptron(Module):
 
     def predict(self, X):
         # 每个样本计算出的函数值
-        f_value = (self.weight @ X) + self.bias
+        f_value = (self.weight @ X) + self.bias + tensor.Tensor([0])
         # 计算对应的符号函数值，正数为1，负数为-1，0为0
         pred = F.relu(f_value)
         # pred[pred >= 0] = 1
         if(pred > 0):
+            # print(tensor.Tensor([-1]))
             return eznf.ones(1)
         else:
+            print(tensor.Tensor([-1]))
             return tensor.Tensor([-1])
