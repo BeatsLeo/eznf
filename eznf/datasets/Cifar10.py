@@ -60,4 +60,4 @@ class Cifar10:
             
     def get(self, path:str):
         X_train, Y_train, X_test, Y_test = self.__unpickle(path)
-        return np.array(X_train), np.array(Y_train), np.array(X_test), np.array(Y_test)
+        return eznf.Tensor(np.array(X_train)), eznf.Tensor(np.array(Y_train)), eznf.Tensor(np.array(X_test)), eznf.Tensor(np.array(Y_test))

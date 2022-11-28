@@ -13,6 +13,6 @@ class Flatten(Module):
         else:
             grad_fn = None
 
-        tensor = eznf.Tensor(grad_fn=grad_fn, requires_grad=x.requires_grad, is_leaf=False)
+        tensor = eznf.Tensor(grad_fn=grad_fn, device=x.device, requires_grad=x.requires_grad, is_leaf=False)
         tensor.item = x.item.reshape([x.shape[0], -1], order='C').T
         return tensor

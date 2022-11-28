@@ -1,3 +1,4 @@
+import eznf
 import requests
 import time
 import os
@@ -62,10 +63,10 @@ class MNIST:
                 self.X_shuffle_train.append(self.X_train[val])
                 self.Y_shuffle_train.append(self.Y_train[val])
                 
-            return np.array(self.X_shuffle_train), np.array(self.Y_shuffle_train), self.X_test, self.Y_test
+            return eznf.Tensor(np.array(self.X_shuffle_train)), eznf.Tensor(np.array(self.Y_shuffle_train)), eznf.Tensor(self.X_test), eznf.Tensor(self.Y_test)
                 
         else:
-            return self.X_train, self.Y_train, self.X_test, self.Y_test
+            return eznf.Tensor(self.X_train), eznf.Tensor(self.Y_train), eznf.Tensor(self.X_test), eznf.Tensor(self.Y_test)
         
     def show_one_sample(self):
         '''Return

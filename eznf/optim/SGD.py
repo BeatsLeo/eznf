@@ -1,5 +1,4 @@
 import eznf
-from eznf import Tensor
 
 class SGD:
     def __init__(self, alpha:float, model:eznf.nn.Module):
@@ -13,4 +12,3 @@ class SGD:
     def zero_grad(self):
         for w in self.m.parameters():
             w.grad.item = 0
-    

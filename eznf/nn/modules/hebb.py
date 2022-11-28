@@ -10,10 +10,6 @@ class Hebb(Module):
         # 模型参数
         self.weight = None
 
-    def __call__(self, *args):
-        # self.fit(args)
-        pass
-
     def fit(self, train_X,train_Y):
         n, m = train_X.item.shape[0],train_X.item.shape[1]
         self.weight = eznf.ones(m)

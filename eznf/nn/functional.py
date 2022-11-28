@@ -2,28 +2,26 @@ import eznf
 from eznf.autograd import function
 import numpy as np
 
-def istensor(input):
-    if(isinstance(input, eznf.Tensor)!=True):
-        raise ValueError('not tensor')
+# 线性函数
+def linear(x, w):
+    return w @ x
 
+# relu激活函数
 def relu(x):
     if(x.requires_grad):
         grad_fn = function.ReluBackward(x=x, requires_grad=x.requires_grad)
     else:
         grad_fn = None
     res = x.item * (x.item > 0)
-    return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
+    return eznf.Tensor(res, device=x.device, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
 
-def linear(x, w):
-    return w @ x
+# sigmoid激活函数
+def sigmoid(x):
+    return 1 / (1 + (-x).exp())
 
-def sigmoid(input) :
-    istensor(input)
-    return 1.0/(1.0+eznf.exp(-input))
-
-def tanh(input) :
-    istensor(input)
-    return (eznf.exp(input)-eznf.exp(-input))/(eznf.exp(input)+eznf.exp(-input))
+# tanh激活函数
+def tanh(x) :
+    return (x.exp()- (-x).exp()) / (x.exp() + (-x).exp())
 
 # softmax激活函数
 def softmax(x, axis):
@@ -33,9 +31,9 @@ def softmax(x, axis):
         grad_fn = None
 
     phi = x.item.max(axis=axis)
-    e = np.exp(x.item - phi)
+    e = x.arr.exp(x.item - phi)
     res = e / e.sum(axis=axis)
-    return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
+    return eznf.Tensor(res, device=x.device, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
 
 # 卷积, stride = 1, padding = 0
 def cov2d(x, w):
@@ -54,14 +52,14 @@ def cov2d(x, w):
     steps = x_size - w_size + 1
 
     _w = w.item.reshape([out_channels, -1], order='C')   # 将卷积核展平
-    _z = np.zeros([in_channels*w_size**2, batch_size*steps**2]) # 为将输入展平做准备
+    _z = x.arr.zeros([in_channels*w_size**2, batch_size*steps**2]) # 为将输入展平做准备
 
     for i in range(w_size):
         for j in range(w_size):
             _z[i*w_size+j::w_size**2, :] = x.item[:, :, i:steps+i, j:steps+j].transpose(1,0,2,3).reshape([in_channels,-1], order='C')    # 将输入展平(im2col)
 
     z = (_w @ _z).reshape([out_channels, batch_size, steps, steps], order='C').transpose(1,0,2,3)   # 矩阵相乘后还原(卷积)
-    return eznf.Tensor(z, requires_grad=requires_grad, grad_fn=grad_fn, is_leaf=False)
+    return eznf.Tensor(z, device=x.device, requires_grad=requires_grad, grad_fn=grad_fn, is_leaf=False)
 
 # 最大池化, stride = p_size, padding = 0
 def max_pooling(x, p_size):
@@ -74,7 +72,7 @@ def max_pooling(x, p_size):
         raise ValueError('x_size must be divided exactly by p_size')
 
     steps = x_size // p_size
-    _z = np.zeros([p_size**2, batch_size*c*steps**2])
+    _z = x.arr.zeros([p_size**2, batch_size*c*steps**2])
 
     for i in range(p_size):
         for j in range(p_size):
@@ -84,19 +82,15 @@ def max_pooling(x, p_size):
     arg_max = _z.argmax(axis=0)
 
     if(x.requires_grad):
-        grad_fn = function.MaxPoolingBackward(x, p_size=p_size, argmax=eznf.Tensor(arg_max, is_leaf=False), requires_grad=x.requires_grad)
+        grad_fn = function.MaxPoolingBackward(x, p_size=p_size, argmax=eznf.Tensor(arg_max, device=x.device, is_leaf=False), requires_grad=x.requires_grad)
     else:
         grad_fn = None
 
-    return eznf.Tensor(z, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
+    return eznf.Tensor(z, device=x.device, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
 
-def mse(input,y):  
-    istensor(input)
-    istensor(y)
-    output=0
-    for i in range(len(input)):
-        output += (input[i]-y[i])**2/2
-    return output
+# 均方误差损失
+def mse(x, y):  
+    return ((x - y)**2).sum() / 2
 
 # 交叉熵损失   
 def cross_entropy(x, y):
@@ -106,5 +100,5 @@ def cross_entropy(x, y):
         grad_fn = None
 
     a = softmax(x, 0)
-    res = -(y.item*np.log(a.item)).sum()
-    return eznf.Tensor(res, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
+    res = -(y.item*x.arr.log(a.item)).sum()
+    return eznf.Tensor(res, device=x.device, requires_grad=x.requires_grad, grad_fn=grad_fn, is_leaf=False)
