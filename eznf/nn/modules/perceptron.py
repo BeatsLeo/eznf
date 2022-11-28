@@ -62,9 +62,13 @@ class Perceptron(Module):
         pred = F.relu(f_value)
         # pred = f_value[0]
         pred[pred == 0] = 1
+<<<<<<< HEAD
 <<<<<<< Updated upstream
         return pred
 =======
         # pred = -1 if pred < 0 else 1
         return pred
 >>>>>>> Stashed changes
+=======
+        return pred
+>>>>>>> 04f12272c7591d1117cb9947e213eed8466d6a5a

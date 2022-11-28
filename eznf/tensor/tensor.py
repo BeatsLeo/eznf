@@ -1,34 +1,153 @@
 import numpy as np
 
 class Tensor:
-    def __init__(self, *args, device=None):
-        if(isinstance(args[0], list) or isinstance(args[0], np.ndarray)):
+    def __init__(self, *args, device=None, requires_grad=False, grad_fn=None, is_leaf=True):
+        if(len(args) == 0):
+            self.item = np.random.randn(1)
+        elif(isinstance(args[0], list) or isinstance(args[0], float)):
             self.item = np.array(args[0], float)
+        elif(isinstance(args[0], np.ndarray)):
+            if(args[0].dtype == bool):
+                self.item = np.array(args[0])
+            else:
+                self.item = np.array(args[0])
+        elif(isinstance(args[0], Tensor)):
+            self.item = args[0].item
         else:
-            self.item = np.random.random(args)
+            self.item = np.random.randn(*args)
 
+        self.requires_grad = requires_grad
+        self.grad_fn = grad_fn
+        self.is_leaf = is_leaf
         self.device = device
+        self.grad = None
 
+    @property
+    def shape(self):
+        return self.item.shape
+
+    @property
+    def T(self):
+        if(self.requires_grad):
+            grad_fn = function.PermuteBackward(self, requires_grad=self.requires_grad)
+        else:
+            grad_fn = None
+        return Tensor(self.item.T, device=self.device, grad_fn=grad_fn, requires_grad=self.requires_grad, is_leaf=self.is_leaf)
+
+    def size(self):
+        return self.item.size
+
+    def dim(self):
+        return len(self.item.shape)
+
+    def max(self, axis=None):
+        tensor = Tensor(is_leaf=False)
+        tensor.item = self.item.max(axis=axis)
+        return tensor
+
+    def min(self, axis=None):
+        tensor = Tensor(is_leaf=False)
+        tensor.item = self.item.min(axis=axis)
+        return tensor
+
+    def sum(self, axis=None):
+        if(self.requires_grad):
+            grad_fn = function.SumBackward(self, requires_grad=self.requires_grad)
+        else:
+            grad_fn = None
+        return Tensor(self.item.sum(axis=axis), requires_grad=self.requires_grad, grad_fn=grad_fn, is_leaf=False)
+
+    def mean(self, axis=None):
+        return Tensor(self.item.mean(axis=axis), is_leaf=False)
+
+    def var(self, axis=None):
+        if(axis != None):
+            n = self.item.shape[axis]
+        else:
+            n = self.item.size
+        return Tensor(np.array(self.item.var(axis=axis)*n/(n-1)), is_leaf=False)
+
+    def std(self, axis=None):
+        if(axis != None):
+            n = self.item.shape[axis]
+        else:
+            n = self.item.size
+        return self.var().sqrt()
+
+    def abs(self):
+        return Tensor(np.abs(self.item))
+
+    def argmin(self, axis=None):
+        tensor = Tensor(is_leaf=False)
+        tensor.item = self.item.argmin(axis=axis)
+        return tensor
+    
+    def argmax(self, axis=None):
+        tensor = Tensor(is_leaf=False)
+        tensor.item = self.item.argmax(axis=axis)
+        return tensor
+
+    def view(self, *args):
+        if(self.requires_grad):
+            grad_fn = function.PermuteBackward(self, requires_grad=self.requires_grad)
+        else:
+            grad_fn = None
+        return Tensor(self.item.reshape(*args), device=self.device, grad_fn=grad_fn, requires_grad=self.requires_grad, is_leaf=self.is_leaf)
+
+    def sqrt(self):
+        return Tensor(np.sqrt(self.item), is_leaf=False)
+
+    def tolist(self):
+        return self.item.tolist()
+
+    def numpy(self):
+        return self.item
+
+    def sin(self):
+        return Tensor(np.sin(self.item), is_leaf=False)
+
+    def cos(self):
+        return Tensor(np.cos(self.item), is_leaf=False)
+
+    def tan(self):
+        return Tensor(np.tan(self.item), is_leaf=False)
+
+    def tanh(self):
+        return Tensor(np.tanh(self.item), is_leaf=False)
+
+    def exp(self):
+        return Tensor(np.exp(self.item), is_leaf=False)
+
+    def copy(self):
+        return Tensor(self.item.copy())
 
     def __str__(self):
-        return 'tensor({})'.format(self.item)
+        return 'tensor(\n{}\n)'.format(self.item)
 
     def __repr__(self):
+<<<<<<< HEAD
 <<<<<<< Updated upstream
         return 'tensor({})'.format(self.item)
 =======
+=======
+>>>>>>> 04f12272c7591d1117cb9947e213eed8466d6a5a
         return 'tensor(\n{}\n)'.format(self.item)
     
     def __len__(self):
         return len(self.item)
 
     def __getitem__(self, *args):
+<<<<<<< HEAD
         return Tensor(self.item.__getitem__(*args), is_leaf=False)
+=======
+        return Tensor(self.item.__getitem__(*args), requires_grad=self.requires_grad, is_leaf=False)
+>>>>>>> 04f12272c7591d1117cb9947e213eed8466d6a5a
 
     def __setitem__(self, key, value):
         self.item.__setitem__(key, value)
 
     def __lt__(self, other):
+<<<<<<< HEAD
         return Tensor(self.item.__lt__(other), is_leaf=False)
     
     def __le__(self, other):
@@ -45,6 +164,24 @@ class Tensor:
         
     def __ge__(self, other):
         return Tensor(self.item.__ge__(other), is_leaf=False)
+=======
+        return Tensor(self.item.__lt__(other), requires_grad=self.requires_grad, is_leaf=False)
+    
+    def __le__(self, other):
+        return Tensor(self.item.__le__(other), requires_grad=self.requires_grad, is_leaf=False)
+
+    def __eq__(self, other):
+        return Tensor(self.item.__eq__(other), requires_grad=self.requires_grad, is_leaf=False)
+
+    def __ne__(self, other):
+        return Tensor(self.item.__ne__(other), requires_grad=self.requires_grad, is_leaf=False)
+
+    def __gt__(self, other):
+        return Tensor(self.item.__gt__(other), requires_grad=self.requires_grad, is_leaf=False)
+        
+    def __ge__(self, other):
+        return Tensor(self.item.__ge__(other), requires_grad=self.requires_grad, is_leaf=False)
+>>>>>>> 04f12272c7591d1117cb9947e213eed8466d6a5a
 
     def __neg__(self):
         if(self.requires_grad):
@@ -146,11 +283,20 @@ class Tensor:
             raise RuntimeError('grad can be implicitly created only for scalar outputs')
         if(self.grad_fn):
             self.grad_fn.backward(output)
+<<<<<<< HEAD
         else:
+=======
+        elif(self.is_leaf):
+>>>>>>> 04f12272c7591d1117cb9947e213eed8466d6a5a
             if(self.grad):
                 self.grad += output
             else:
                 self.grad = output
 
+<<<<<<< HEAD
 from eznf.autograd import function
 >>>>>>> Stashed changes
+=======
+
+from eznf.autograd import function
+>>>>>>> 04f12272c7591d1117cb9947e213eed8466d6a5a

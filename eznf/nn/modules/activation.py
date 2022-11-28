@@ -1,11 +1,10 @@
-from eznf.nn.modules import Module
+from .module import Module
 
 class ReLU(Module):
     def __init__(self):
-        pass
+        super().__init__()
 
-    def __call__(self, *args):
-        self.forward(args)
+    def forward(self, x):
+        return relu(x)
 
-    def forward(self, *args):
-        pass
+from ..functional import *
