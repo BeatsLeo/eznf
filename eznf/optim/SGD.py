@@ -11,4 +11,4 @@ class SGD:
             
     def zero_grad(self):
         for w in self.m.parameters():
-            w.grad.item = 0
+            w.grad = None
